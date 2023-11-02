@@ -1,2 +1,2 @@
-# FastApi and PodgreSQL
+# FastApi and PostgreSQL
 pet-project
