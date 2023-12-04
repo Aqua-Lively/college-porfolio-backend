@@ -1,13 +1,30 @@
 from sqlalchemy import Column, Integer, String
 
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 from ..config.db import Base
 
-class Author(Base):
-    __tablename__ = 'authors'
+from typing import List
 
-    id = Column(Integer, primary_key=True, nullable=False)
-    name = Column(String(20), nullable=False)
-    login = Column(String(20), nullable=False)
-    password = Column(String(20), nullable=False)
-    email = Column(String(50),  nullable=False)
-    photo = Column(String(50), nullable=False)
+
+class Author(Base):
+    __tablename__ = 'author'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, nullable=False)
+
+    name: Mapped[int] = mapped_column(String(20), nullable=False)
+
+    surname: Mapped[str] = mapped_column(String(20), nullable=False)
+    
+    email: Mapped[str] = mapped_column(String(20), nullable=False)
+
+    password: Mapped[str] = mapped_column(String(20), nullable=False)
+
+    photo: Mapped[str] = mapped_column(String(20), nullable=False)
+
+    group: Mapped[str] = mapped_column(String(20), nullable=False)
+
+    year_group: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    class_group: Mapped[int] = mapped_column(Integer, nullable=False)
+

@@ -2,6 +2,14 @@ from pydantic import BaseModel
 from datetime import date
 from typing import List
 
+class InfoWork(BaseModel):
+    date:date
+    title:str
+    description:str
+    image:str
+    author:int
+    types: List[int]
+
 class BaseWork(BaseModel):
     date: date
     title: str
@@ -9,13 +17,8 @@ class BaseWork(BaseModel):
     image: str
     author: int
 
-class Work(BaseWork):
-    id: int
-
-class WorkWithType(BaseModel):
-    date: date
-    title: str
-    description: str
+class Work(BaseModel):
+    work_id: int
     image: str
-    author: int
-    type: List[str]
+    type_id: List[int]
+    icon: List[str]

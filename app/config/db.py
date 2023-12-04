@@ -2,7 +2,8 @@ import os
 from dotenv import load_dotenv
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base
+# from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import sessionmaker
 
 
@@ -24,7 +25,9 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 # Определяем базовый класс
-Base = declarative_base()
+# Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
 # Dependency (зависимость)
 def get_db():
@@ -34,8 +37,3 @@ def get_db():
     finally:
         db.close
 
-# print(POSTGRES_HOST)
-# print(POSTGRES_DB)
-# print(POSTGRES_USER)
-# print(POSTGRES_PORT)
-# print(POSTGRES_PASSWORD)

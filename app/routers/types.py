@@ -15,6 +15,7 @@ from ..schemas import BaseType, Type
 
 
 from sqlalchemy.orm import Session
+from sqlalchemy import select, insert
 
 from typing import List
 
@@ -23,10 +24,12 @@ router = APIRouter(
     tags=['Types']
 )
 
-@router.get('/', response_description='List of all types', response_model=List[Type], status_code=status.HTTP_200_OK)
+@router.get('/', response_description='List of all types', response_model=List[List[Type]], status_code=status.HTTP_200_OK)
 def get_all_types(db: Session=Depends(get_db)):
 
-    types = db.query(TypeModel).all()
+    stmt = select(TypeModel)
+
+    types = db.execute(stmt).fetchall()
 
     if types == []:
         raise HTTPException(
@@ -39,12 +42,20 @@ def get_all_types(db: Session=Depends(get_db)):
 @router.post('/', response_description='Create new types', response_model=Type, status_code=status.HTTP_201_CREATED)
 def create_type(type: BaseType, db: Session=Depends(get_db)):
 
-    new_types = TypeModel(**type.model_dump())
+    try:
+        new_type = db.execute(
+            insert(TypeModel).returning(TypeModel),
+            [{**type.model_dump()}]
+        ).scalar()
+    
+    except:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            default=f'Не удалось добавить новый тип'
+        )
+    
+    else:
+        db.commit()
+        return new_type
 
-    db.add(new_types)
-
-    db.commit()
-
-    db.refresh(new_types)
-
-    return new_types
