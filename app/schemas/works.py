@@ -22,3 +22,5 @@ class Work(BaseModel):
     image: str
     type_id: List[int]
     icon: List[str]
+
+

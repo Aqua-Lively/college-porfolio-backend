@@ -26,21 +26,21 @@ router = APIRouter(
     tags=['Works']
 )
 
-# @router.get('/', response_description='List of all works', response_model=List[List[Work]], status_code=status.HTTP_200_OK)
-# def get_all_works(db: Session=Depends(get_db)):
+@router.get('/', response_description='List of all works', response_model=List[List[Work]], status_code=status.HTTP_200_OK)
+def get_all_works(db: Session=Depends(get_db)):
 
-#     stmt = select(WorkModel.id, WorkModel.image)
+    stmt = select(WorkModel)
 
-#     print(stmt)
-#     works = db.execute(stmt).fetchall()
+    print(stmt)
+    works = db.execute(stmt).fetchall()
 
-#     if works == []:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail=f'Nothing found'
-#         )
+    if works == []:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f'Nothing found'
+        )
     
-#     return works
+    return works
 
 
 @router.get('/', response_description='List of all works', response_model=List[Work], status_code=status.HTTP_200_OK)
