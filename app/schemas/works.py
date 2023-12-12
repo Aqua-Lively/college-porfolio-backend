@@ -10,17 +10,19 @@ class InfoWork(BaseModel):
     author:int
     types: List[int]
 
-class BaseWork(BaseModel):
+
+class Work(BaseModel):
     date: date
     title: str
     description: str
     image: str
     author: int
+    id: int
 
-class Work(BaseModel):
+
+class ActualWork(BaseModel):
     work_id: int
     image: str
     type_id: List[int]
     icon: List[str]
-
 
