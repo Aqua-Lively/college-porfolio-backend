@@ -69,6 +69,34 @@ def get_all_works(db: Session = Depends(get_db)):
     return works
 
 
+@router.get('/actual/amount', response_description='List of all works', response_model=int, status_code=status.HTTP_200_OK)
+def get_all_works(db: Session = Depends(get_db)):
+    
+
+    stmt = select(
+        WorkModel.id.label('work_id'),
+        WorkModel.image,
+        func.array_agg(Work_TypeModel.type_id).label('type_id'),
+        func.array_agg(TypeModel.icon.cast(String(20))).label('icon')
+    ).join(
+        Work_TypeModel, WorkModel.id == Work_TypeModel.work_id
+    ).join(
+        TypeModel, Work_TypeModel.type_id == TypeModel.id
+    ).group_by(
+        WorkModel.id, WorkModel.image
+    )
+
+    works = db.execute(stmt).fetchall()
+
+    if works == []:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Nothing found'
+        )
+    
+    return len(works)
+
+
 @router.get('/actual/{page}&{count}', response_description='List of all works', response_model=List[ActualWork], status_code=status.HTTP_200_OK)
 def get_all_works(page: int, count: int, db: Session = Depends(get_db)):
     
@@ -98,72 +126,54 @@ def get_all_works(page: int, count: int, db: Session = Depends(get_db)):
     
 
 
-@router.get('/actual/{page}&{count}/types', response_description='List of all works', response_model=List[ActualWork], status_code=status.HTTP_200_OK)
-def get_all_works(page: int, count: int, types: Union[List[int], None] = None, db: Session = Depends(get_db)):
+
+
+@router.get('/actual/types/amount', response_description='List of all works', response_model=int, status_code=status.HTTP_200_OK)
+def get_all_works(types: List[int], db: Session = Depends(get_db)):
     
 
-    # stmt_count = select(
-    #     WorkModel.id.label('work_id'),
-    #     WorkModel.image,
-    #     func.array_agg(Work_TypeModel.type_id).label('type_id'),
-    #     func.array_agg(TypeModel.icon.cast(String(20))).label('icon')
-    # ).join(
-    #     Work_TypeModel, WorkModel.id == Work_TypeModel.work_id
-    # ).join(
-    #     TypeModel, Work_TypeModel.type_id == TypeModel.id
-    # ).where(
-    #     Work_TypeModel.type_id.in_(types)
-    # ).group_by(
-    #     WorkModel.id, WorkModel.image
-    # )
+    if len(types) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Nothing type'
+        )
+
+    stmt = select(
+        WorkModel.id.label('work_id'),
+        WorkModel.image,
+        func.array_agg(Work_TypeModel.type_id).label('type_id'),
+        func.array_agg(TypeModel.icon.cast(String(20))).label('icon')
+    ).join(
+        Work_TypeModel, WorkModel.id == Work_TypeModel.work_id
+    ).join(
+        TypeModel, Work_TypeModel.type_id == TypeModel.id
+    ).where(
+        Work_TypeModel.type_id.in_(types)
+    ).group_by(
+        WorkModel.id, WorkModel.image
+    )
+
+    works = db.execute(stmt).fetchall()
+
+    if works == []:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Nothing found'
+        )
+    
+    return len(works)
+
+@router.get('/actual/types/{page}&{count}', response_description='List of all works', response_model=List[ActualWork], status_code=status.HTTP_200_OK)
+def get_all_works(page: int, count: int, types: List[int], db: Session = Depends(get_db)):
 
 
+    if len(types) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Nothing type'
+        )
 
-
-    # stmt_count = select(
-    #     WorkModel.id.label('work_id'),
-    #     WorkModel.image,
-    #     func.array_agg(Work_TypeModel.type_id).label('type_id'),
-    #     func.array_agg(TypeModel.icon.cast(String(20))).label('icon')
-    # ).join(
-    #     Work_TypeModel, WorkModel.id == Work_TypeModel.work_id
-    # ).join(
-    #     TypeModel, Work_TypeModel.type_id == TypeModel.id
-    # ).where(
-    #     Work_TypeModel.type_id.in_(types)
-    # ).group_by(
-    #     WorkModel.id, WorkModel.image
-    # )
-
-
-    query1 = db.query(func.count(WorkModel.id), WorkModel).limit(1)
-    print('++++++++++++++++++++++++++++++++++++++++++++++++')
-    print(query1)
-    print('++++++++++++++++++++++++++++++++++++++++++++++++')
-    print('================================================')
-    results = query1.all()
-    print(results)
-    print('================================================')
-    # print(stmt_count)
-    # count_rows = db.execute(stmt_count.count()).scalar()
-
-    # print(count_rows)
-
-
-
-
-
-
-
-
-    from sqlalchemy import distinct
-
-
-
-
-
-
-    stmt_table = select(
+    stmt = select(
         WorkModel.id.label('work_id'),
         WorkModel.image,
         func.array_agg(Work_TypeModel.type_id).label('type_id'),
@@ -178,11 +188,7 @@ def get_all_works(page: int, count: int, types: Union[List[int], None] = None, d
         WorkModel.id, WorkModel.image
     ).limit(count).offset(page*count-(count-1) if page!= 0 else 0)
 
-    # count_rows = db.execute(stmt_count).fetchall()
-
-    # print(count_rows)
-
-    works = db.execute(stmt_table).fetchall()
+    works = db.execute(stmt).fetchall()
 
     if works == []:
         raise HTTPException(
@@ -191,6 +197,7 @@ def get_all_works(page: int, count: int, types: Union[List[int], None] = None, d
         )
     
     return works
+
 
 
 
@@ -243,23 +250,3 @@ def create_work(work: InfoWork, db: Session=Depends(get_db)):
         db.commit()
         return new_work
     
-
-from typing import Union
-
-# @router.get("/items/{item_id}")
-# def read_item(item_id: int, q: Union[int, None] = None):
-#     return {"item_id": item_id, "q": q}
-
-
-from typing import Annotated
-from fastapi import Path
-
-@router.get("/items/{item_id}")
-async def read_items(
-    item_id: Annotated[int, Path(title="The ID of the item to get", gt=0, le=1000)],
-    q: str,
-):
-    results = {"item_id": item_id}
-    if q:
-        results.update({"q": q})
-    return results
