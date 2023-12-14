@@ -42,7 +42,7 @@ def get_all_works(db: Session=Depends(get_db)):
     return works
 
 
-@router.get('/actual', response_description='List of all works', response_model=List[ActualWork], status_code=status.HTTP_200_OK)
+@router.get('/actual', response_description='List of all actual works', response_model=List[ActualWork], status_code=status.HTTP_200_OK)
 def get_all_works(db: Session = Depends(get_db)):
 
     stmt = select(
@@ -69,7 +69,7 @@ def get_all_works(db: Session = Depends(get_db)):
     return works
 
 
-@router.get('/actual/amount', response_description='List of all works', response_model=int, status_code=status.HTTP_200_OK)
+@router.get('/actual/amount', response_description='Amount all actual works', response_model=int, status_code=status.HTTP_200_OK)
 def get_all_works(db: Session = Depends(get_db)):
     
 
@@ -97,7 +97,7 @@ def get_all_works(db: Session = Depends(get_db)):
     return len(works)
 
 
-@router.get('/actual/{page}&{count}', response_description='List of all works', response_model=List[ActualWork], status_code=status.HTTP_200_OK)
+@router.get('/actual/{page}&{count}', response_description='List slice actual works', response_model=List[ActualWork], status_code=status.HTTP_200_OK)
 def get_all_works(page: int, count: int, db: Session = Depends(get_db)):
     
     stmt = select(
@@ -128,7 +128,7 @@ def get_all_works(page: int, count: int, db: Session = Depends(get_db)):
 
 
 
-@router.get('/actual/types/amount', response_description='List of all works', response_model=int, status_code=status.HTTP_200_OK)
+@router.get('/actual/types/amount', response_description='Amount all actual types works', response_model=int, status_code=status.HTTP_200_OK)
 def get_all_works(types: List[int], db: Session = Depends(get_db)):
     
 
@@ -163,7 +163,7 @@ def get_all_works(types: List[int], db: Session = Depends(get_db)):
     
     return len(works)
 
-@router.get('/actual/types/{page}&{count}', response_description='List of all works', response_model=List[ActualWork], status_code=status.HTTP_200_OK)
+@router.get('/actual/types/{page}&{count}', response_description='List slice actual types works', response_model=List[ActualWork], status_code=status.HTTP_200_OK)
 def get_all_works(page: int, count: int, types: List[int], db: Session = Depends(get_db)):
 
 
