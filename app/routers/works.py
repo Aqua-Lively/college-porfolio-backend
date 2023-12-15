@@ -55,7 +55,7 @@ def get_all_works(db: Session = Depends(get_db)):
     ).join(
         TypeModel, Work_TypeModel.type_id == TypeModel.id
     ).group_by(
-        WorkModel.id, WorkModel.image
+        WorkModel.id
     )
 
     works = db.execute(stmt).fetchall()
@@ -69,22 +69,44 @@ def get_all_works(db: Session = Depends(get_db)):
     return works
 
 
-@router.get('/actual/amount', response_description='Amount all actual works', response_model=int, status_code=status.HTTP_200_OK)
-def get_all_works(db: Session = Depends(get_db)):
+@router.get('/actual/types/amount', response_description='Amount all actual works by types', response_model=int, status_code=status.HTTP_200_OK)
+def get_all_works(types: Union[None, List[int]], db: Session = Depends(get_db)):
     
 
-    stmt = select(
-        WorkModel.id.label('work_id'),
-        WorkModel.image,
-        func.array_agg(Work_TypeModel.type_id).label('type_id'),
-        func.array_agg(TypeModel.icon.cast(String(20))).label('icon')
-    ).join(
-        Work_TypeModel, WorkModel.id == Work_TypeModel.work_id
-    ).join(
-        TypeModel, Work_TypeModel.type_id == TypeModel.id
-    ).group_by(
-        WorkModel.id, WorkModel.image
-    )
+    if len(types) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Nothing type'
+        )
+
+    if types == None:
+        stmt = select(
+            WorkModel.id.label('work_id'),
+            WorkModel.image,
+            func.array_agg(Work_TypeModel.type_id).label('type_id'),
+            func.array_agg(TypeModel.icon.cast(String(20))).label('icon')
+        ).join(
+            Work_TypeModel, WorkModel.id == Work_TypeModel.work_id
+        ).join(
+            TypeModel, Work_TypeModel.type_id == TypeModel.id
+        ).group_by(
+            WorkModel.id
+        )
+    else:
+        stmt = select(
+            WorkModel.id.label('work_id'),
+            WorkModel.image,
+            func.array_agg(Work_TypeModel.type_id).label('type_id'),
+            func.array_agg(TypeModel.icon.cast(String(20))).label('icon')
+        ).join(
+            Work_TypeModel, WorkModel.id == Work_TypeModel.work_id
+        ).join(
+            TypeModel, Work_TypeModel.type_id == TypeModel.id
+        ).where(
+            Work_TypeModel.type_id.in_(types)
+        ).group_by(
+            WorkModel.id
+        )
 
     works = db.execute(stmt).fetchall()
 
@@ -96,75 +118,8 @@ def get_all_works(db: Session = Depends(get_db)):
     
     return len(works)
 
-
-@router.get('/actual/{page}&{count}', response_description='List slice actual works', response_model=List[ActualWork], status_code=status.HTTP_200_OK)
-def get_all_works(page: int, count: int, db: Session = Depends(get_db)):
-    
-    stmt = select(
-        WorkModel.id.label('work_id'),
-        WorkModel.image,
-        func.array_agg(Work_TypeModel.type_id).label('type_id'),
-        func.array_agg(TypeModel.icon.cast(String(20))).label('icon')
-    ).join(
-        Work_TypeModel, WorkModel.id == Work_TypeModel.work_id
-    ).join(
-        TypeModel, Work_TypeModel.type_id == TypeModel.id
-    ).group_by(
-        WorkModel.id, WorkModel.image
-    ).limit(count).offset(page*count-(count-1) if page!= 0 else 0)
-
-    print(stmt)
-    works = db.execute(stmt).fetchall()
-
-    if works == []:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Nothing found'
-        )
-    
-    return works
-    
-
-
-
-
-@router.get('/actual/types/amount', response_description='Amount all actual types works', response_model=int, status_code=status.HTTP_200_OK)
-def get_all_works(types: List[int], db: Session = Depends(get_db)):
-    
-
-    if len(types) == 0:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Nothing type'
-        )
-
-    stmt = select(
-        WorkModel.id.label('work_id'),
-        WorkModel.image,
-        func.array_agg(Work_TypeModel.type_id).label('type_id'),
-        func.array_agg(TypeModel.icon.cast(String(20))).label('icon')
-    ).join(
-        Work_TypeModel, WorkModel.id == Work_TypeModel.work_id
-    ).join(
-        TypeModel, Work_TypeModel.type_id == TypeModel.id
-    ).where(
-        Work_TypeModel.type_id.in_(types)
-    ).group_by(
-        WorkModel.id, WorkModel.image
-    )
-
-    works = db.execute(stmt).fetchall()
-
-    if works == []:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Nothing found'
-        )
-    
-    return len(works)
-
-@router.get('/actual/types/{page}&{count}', response_description='List slice actual types works', response_model=List[ActualWork], status_code=status.HTTP_200_OK)
-def get_all_works(page: int, count: int, types: List[int], db: Session = Depends(get_db)):
+@router.get('/actual/types/{page}&{count}', response_description='List slice actual works by types', response_model=List[ActualWork], status_code=status.HTTP_200_OK)
+def get_all_works(page: int, count: int, types: Union[None, List[int]], db: Session = Depends(get_db)):
 
 
     if len(types) == 0:
@@ -173,20 +128,34 @@ def get_all_works(page: int, count: int, types: List[int], db: Session = Depends
             detail='Nothing type'
         )
 
-    stmt = select(
-        WorkModel.id.label('work_id'),
-        WorkModel.image,
-        func.array_agg(Work_TypeModel.type_id).label('type_id'),
-        func.array_agg(TypeModel.icon.cast(String(20))).label('icon')
-    ).join(
-        Work_TypeModel, WorkModel.id == Work_TypeModel.work_id
-    ).join(
-        TypeModel, Work_TypeModel.type_id == TypeModel.id
-    ).where(
-        Work_TypeModel.type_id.in_(types)
-    ).group_by(
-        WorkModel.id, WorkModel.image
-    ).limit(count).offset(page*count-(count-1) if page!= 0 else 0)
+    if types == None:
+        stmt = select(
+            WorkModel.id.label('work_id'),
+            WorkModel.image,
+            func.array_agg(Work_TypeModel.type_id).label('type_id'),
+            func.array_agg(TypeModel.icon.cast(String(20))).label('icon')
+        ).join(
+            Work_TypeModel, WorkModel.id == Work_TypeModel.work_id
+        ).join(
+            TypeModel, Work_TypeModel.type_id == TypeModel.id
+        ).group_by(
+            WorkModel.id
+        ).limit(count).offset(page*count-(count-1) if page!= 0 else 0)
+    else:
+        stmt = select(
+            WorkModel.id.label('work_id'),
+            WorkModel.image,
+            func.array_agg(Work_TypeModel.type_id).label('type_id'),
+            func.array_agg(TypeModel.icon.cast(String(20))).label('icon')
+        ).join(
+            Work_TypeModel, WorkModel.id == Work_TypeModel.work_id
+        ).join(
+            TypeModel, Work_TypeModel.type_id == TypeModel.id
+        ).where(
+            Work_TypeModel.type_id.in_(types)
+        ).group_by(
+            WorkModel.id
+        ).limit(count).offset(page*count-(count-1) if page!= 0 else 0)
 
     works = db.execute(stmt).fetchall()
 
