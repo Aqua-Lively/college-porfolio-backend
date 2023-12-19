@@ -11,11 +11,11 @@ from ..models import Work as WorkModel
 from ..models import Type as TypeModel
 from ..models import Work_Type as Work_TypeModel
 
-from ..schemas import BaseAuthor, Author
+from ..schemas import BaseAuthor, Author, ActualAuthor
 
 
 from sqlalchemy.orm import Session
-from sqlalchemy import select, insert
+from sqlalchemy import select, insert,func
 
 from typing import List
 
@@ -29,7 +29,35 @@ router = APIRouter(
 def get_all_authors(db: Session=Depends(get_db)):
 
     stmt = select(AuthorModel)
-    print(stmt)
+
+    authors = db.execute(stmt).fetchall()
+
+    if authors == []:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Nothing found'  
+        )
+        
+    return authors
+
+
+@router.get('/actual/', response_description='List of all Authors', response_model=List[ActualAuthor], status_code=status.HTTP_200_OK)
+def get_all_authors(db: Session=Depends(get_db)):
+
+    stmt = select(
+        AuthorModel.id,
+        AuthorModel.name,
+        AuthorModel.surname,
+        AuthorModel.photo,
+        AuthorModel.group,
+        AuthorModel.year_group,
+        AuthorModel.class_group,
+        func.max(WorkModel.image).label('work_image')
+    ).join(
+        WorkModel, AuthorModel.id == WorkModel.author
+    ).group_by(
+        AuthorModel.id
+    )
 
     authors = db.execute(stmt).fetchall()
 

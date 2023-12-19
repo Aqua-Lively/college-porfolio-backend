@@ -20,7 +20,7 @@ class Author(Base):
 
     password: Mapped[str] = mapped_column(String(20), nullable=False)
 
-    photo: Mapped[str] = mapped_column(String(20), nullable=False)
+    photo: Mapped[str] = mapped_column(String(200), nullable=False)
 
     group: Mapped[str] = mapped_column(String(20), nullable=False)
 

@@ -46,10 +46,11 @@ def get_all_works(db: Session=Depends(get_db)):
 def get_all_works(db: Session = Depends(get_db)):
 
     stmt = select(
+        WorkModel.author,
         WorkModel.id.label('work_id'),
         WorkModel.image,
         func.array_agg(Work_TypeModel.type_id).label('type_id'),
-        func.array_agg(TypeModel.icon.cast(String(20))).label('icon')
+        func.array_agg(TypeModel.icon.cast(String(200))).label('icon')
     ).join(
         Work_TypeModel, WorkModel.id == Work_TypeModel.work_id
     ).join(
@@ -84,7 +85,7 @@ def get_all_works(types: Union[None, List[int]], db: Session = Depends(get_db)):
             WorkModel.id.label('work_id'),
             WorkModel.image,
             func.array_agg(Work_TypeModel.type_id).label('type_id'),
-            func.array_agg(TypeModel.icon.cast(String(20))).label('icon')
+            func.array_agg(TypeModel.icon.cast(String(200))).label('icon')
         ).join(
             Work_TypeModel, WorkModel.id == Work_TypeModel.work_id
         ).join(
@@ -97,7 +98,7 @@ def get_all_works(types: Union[None, List[int]], db: Session = Depends(get_db)):
             WorkModel.id.label('work_id'),
             WorkModel.image,
             func.array_agg(Work_TypeModel.type_id).label('type_id'),
-            func.array_agg(TypeModel.icon.cast(String(20))).label('icon')
+            func.array_agg(TypeModel.icon.cast(String(200))).label('icon')
         ).join(
             Work_TypeModel, WorkModel.id == Work_TypeModel.work_id
         ).join(
@@ -133,7 +134,7 @@ def get_all_works(page: int, count: int, types: Union[None, List[int]], db: Sess
             WorkModel.id.label('work_id'),
             WorkModel.image,
             func.array_agg(Work_TypeModel.type_id).label('type_id'),
-            func.array_agg(TypeModel.icon.cast(String(20))).label('icon')
+            func.array_agg(TypeModel.icon.cast(String(200))).label('icon')
         ).join(
             Work_TypeModel, WorkModel.id == Work_TypeModel.work_id
         ).join(
@@ -146,7 +147,7 @@ def get_all_works(page: int, count: int, types: Union[None, List[int]], db: Sess
             WorkModel.id.label('work_id'),
             WorkModel.image,
             func.array_agg(Work_TypeModel.type_id).label('type_id'),
-            func.array_agg(TypeModel.icon.cast(String(20))).label('icon')
+            func.array_agg(TypeModel.icon.cast(String(200))).label('icon')
         ).join(
             Work_TypeModel, WorkModel.id == Work_TypeModel.work_id
         ).join(

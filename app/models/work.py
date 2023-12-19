@@ -18,7 +18,7 @@ class Work(Base):
 
     description: Mapped[str] = mapped_column(String(500), nullable=False)
     
-    image: Mapped[str] = mapped_column(String(50), nullable=False)
+    image: Mapped[str] = mapped_column(String(200), nullable=False)
 
     author: Mapped[int] = mapped_column(ForeignKey(AuthorModel.id), nullable=False)
     
