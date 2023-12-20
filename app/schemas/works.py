@@ -21,6 +21,7 @@ class Work(BaseModel):
 
 
 class ActualWork(BaseModel):
+    author: int
     work_id: int
     image: str
     type_id: List[int]

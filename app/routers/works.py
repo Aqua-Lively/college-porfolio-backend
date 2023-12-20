@@ -66,7 +66,7 @@ def get_all_works(db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Nothing found'
         )
-    
+    print(works)
     return works
 
 
