@@ -70,15 +70,11 @@ def get_all_works(db: Session = Depends(get_db)):
     return works
 
 
-@router.get('/actual/types/amount', response_description='Amount all actual works by types', response_model=int, status_code=status.HTTP_200_OK)
-def get_all_works(types: Union[None, List[int]], db: Session = Depends(get_db)):
+@router.put('/actual/types/amount', response_description='Amount all actual works by types', response_model=int, status_code=status.HTTP_200_OK)
+# def get_all_works(types: Union[None, List[int]], db: Session = Depends(get_db)):
+def get_all_works(types: List[int] = None, db: Session = Depends(get_db)):
     
 
-    if len(types) == 0:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Nothing type'
-        )
 
     if types == None:
         stmt = select(
@@ -119,15 +115,9 @@ def get_all_works(types: Union[None, List[int]], db: Session = Depends(get_db)):
     
     return len(works)
 
-@router.get('/actual/types/{page}&{count}', response_description='List slice actual works by types', response_model=List[ActualWork], status_code=status.HTTP_200_OK)
-def get_all_works(page: int, count: int, types: Union[None, List[int]], db: Session = Depends(get_db)):
+@router.put('/actual/types/{page}&{count}', response_description='List slice actual works by types', response_model=List[ActualWork], status_code=status.HTTP_200_OK)
+def get_all_works(page: int, count: int, types: List[int] = None, db: Session = Depends(get_db)):
 
-
-    if len(types) == 0:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Nothing type'
-        )
 
     if types == None:
         stmt = select(
