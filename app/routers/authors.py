@@ -98,7 +98,7 @@ def get_author_by_id(id: int, db: Session=Depends(get_db)):
         func.array_agg(subquery.c.image).label('array_images'),
         func.array_agg(subquery.c.type_id).label('array_types'),
         func.array_agg(subquery.c.icon).label('array_icons')
-    ).join(subquery, AuthorModel.id == subquery.c.author).filter(AuthorModel.id == 2).group_by(AuthorModel.id).all()
+    ).join(subquery, AuthorModel.id == subquery.c.author).filter(AuthorModel.id == id).group_by(AuthorModel.id).all()
 
     result =  dict(result[0]._asdict())
     
