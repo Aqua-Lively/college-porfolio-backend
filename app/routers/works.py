@@ -121,6 +121,7 @@ def get_all_works(page: int, count: int, types: List[int] = None, db: Session = 
 
     if types == None:
         stmt = select(
+            WorkModel.author,
             WorkModel.id.label('work_id'),
             WorkModel.image,
             func.array_agg(Work_TypeModel.type_id).label('type_id'),
@@ -131,9 +132,10 @@ def get_all_works(page: int, count: int, types: List[int] = None, db: Session = 
             TypeModel, Work_TypeModel.type_id == TypeModel.id
         ).group_by(
             WorkModel.id
-        ).limit(count).offset(page*count-(count-1) if page!= 0 else 0)
+        ).limit(count).offset(page*count-count if page!= 0 else 0)
     else:
         stmt = select(
+            WorkModel.author,
             WorkModel.id.label('work_id'),
             WorkModel.image,
             func.array_agg(Work_TypeModel.type_id).label('type_id'),
