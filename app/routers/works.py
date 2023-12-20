@@ -146,7 +146,7 @@ def get_all_works(page: int, count: int, types: List[int] = None, db: Session = 
             Work_TypeModel.type_id.in_(types)
         ).group_by(
             WorkModel.id
-        ).limit(count).offset(page*count-(count-1) if page!= 0 else 0)
+        ).limit(count).offset(page*count-count if page!= 0 else 0)
 
     works = db.execute(stmt).fetchall()
 
