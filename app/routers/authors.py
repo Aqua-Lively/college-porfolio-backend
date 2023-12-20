@@ -15,7 +15,9 @@ from ..schemas import BaseAuthor, Author, ActualAuthor
 
 
 from sqlalchemy.orm import Session
-from sqlalchemy import select, insert,func
+from sqlalchemy import select, insert,func, String
+
+
 
 from typing import List
 
@@ -70,6 +72,41 @@ def get_all_authors(db: Session=Depends(get_db)):
     return authors
 
 
+@router.get('/actual/id/{id}', response_description='Get author by id', status_code=status.HTTP_200_OK)
+def get_author_by_id(id: int, db: Session=Depends(get_db)):
+
+    
+
+    subquery = db.query(
+        WorkModel.id,
+        WorkModel.image,
+        func.array_agg(Work_TypeModel.type_id).label('type_id'),
+        func.array_agg(TypeModel.icon.cast(String(20))).label('icon'),
+        WorkModel.author
+    ).join(Work_TypeModel, WorkModel.id == Work_TypeModel.work_id).join(TypeModel, Work_TypeModel.type_id == TypeModel.id).group_by(WorkModel.id).subquery()
+
+    result = db.query(
+        AuthorModel.id,
+        AuthorModel.name,
+        AuthorModel.surname,
+        AuthorModel.email,
+        AuthorModel.photo,
+        AuthorModel.group,
+        AuthorModel.class_group,
+        AuthorModel.year_group,
+        func.array_agg(subquery.c.id).label('array_works_id'),
+        func.array_agg(subquery.c.image).label('array_images'),
+        func.array_agg(subquery.c.type_id).label('array_types'),
+        func.array_agg(subquery.c.icon).label('array_icons')
+    ).join(subquery, AuthorModel.id == subquery.c.author).filter(AuthorModel.id == 2).group_by(AuthorModel.id).all()
+
+    result =  dict(result[0]._asdict())
+    
+    return result
+
+
+
+
 @router.get('/id/{id}', response_description='Get author by id', response_model=Author, status_code=status.HTTP_200_OK)
 def get_author_by_id(id: int, db: Session=Depends(get_db)):
 
@@ -83,6 +120,7 @@ def get_author_by_id(id: int, db: Session=Depends(get_db)):
         )
     
     return author
+
 
 
 
